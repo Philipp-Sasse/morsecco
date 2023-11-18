@@ -27,7 +27,7 @@ def execute():
 					topic = mC.ep.getToken()
 					if (topic == chr(0) or topic == '\n'):
 						topic = ''
-					helpfile = open('help.txt')
+					helpfile = open(os.path.dirname(__file__) + '/help.txt')
 					text = helpfile.read()
 					print(re.sub(r"(?s)\n\n.*", '', re.sub(r"(?s).*?\n" + topic.replace('.', '\\.') + "\n", '', text, 1)))
 				except:
@@ -101,7 +101,7 @@ def execute():
 					if (mC.storage.isFile(handle)):
 						if (mC.storage.files[handle] != ""):
 							mC.storage.files[handle].close()
-						mC.storage.files.pop(handle)
+						del mC.storage.files[handle]
 						del mC.storage.modes[handle]
 						#mC.storage.cells.pop(handle) why not leave the filename for later reuse
 					else:
@@ -277,11 +277,24 @@ def execute():
 						if (newcell.len()): # the cell contains more
 							mC.stack.push(newcell) # be polite and leave the rest on the stack
 
+			elif (command == '-..-'): # eXecute top cell as code
+				code = mC.stack.pop().content
+				if (code == '-..-'): # execute -..- means recurse
+					command = mC.ep.id
+				elif (code == '.-'): # execute Again
+					command = code
+				else:
+					command = '.-' # use unaccessible address .- as storage
+					mC.storage.cells[command] = Cell(code)
+				mC.addressstack.push(Cell(mC.ep.toCode())) # place return address on the address stack
+				mC.ep = ExecutionPointer(command) # execute 
+				
 			elif (command == '...-.'): # (verified) print stack and storage
 				print('===')
 				mC.stack.trace()
-				#print('===')
-				#mC.addressstack.trace()
+				if (mC.addressstack.size()):
+					print('===')
+					mC.addressstack.trace()
 				print(':::')
 				mC.storage.print()
 

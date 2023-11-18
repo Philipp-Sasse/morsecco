@@ -100,7 +100,7 @@ class ExecutionPointer:
 		while (self.position < len(source)):
 			char = source[self.position]
 			self.position = self.position + 1
-			if (char in '.∙'):
+			if (char in '.·∙'):
 				token += '.'
 			elif (char in '-–/'):
 				token += '-'
@@ -137,7 +137,11 @@ class Cellstorage:
 	def print(self):
 		for addr, cell in self.cells.items():
 			if (not addr in ['', '-']):
-				print(addr + ' : ' + cell.content)
+				mode = self.getMode(addr)
+				if (mode):
+					print(addr + ' :(' + mode + ') ' + cell.content)
+				else:
+					print(addr + ' : ' + cell.content)
 	def getMode(self, id):
 		if (id in self.modes.keys()):
 			return self.modes[id]
@@ -273,6 +277,7 @@ class Cellstorage:
 				return stack.pop() # The command left the return value there
 			else:
 				error(f"usage »{mode}« is not defined for Read.")
+				return Cell('')
 		else:
 			error(f"Storage »{id}« does not exist.")
 			return Cell('')
