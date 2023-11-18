@@ -85,6 +85,11 @@ class ExecutionPointer:
 	def __init__(self, id, position = 0):
 		self.id = id
 		self.position=position
+	def isValid(self):
+		if (storage.exists(self.id)):
+			if (self.position >= 0 and self.position <= len(storage.getContent(self.id))):
+				return True
+		return False
 	def copy(self):
 		return ExecutionPointer(self.id, self.position)
 	def getToken(self):
@@ -99,7 +104,7 @@ class ExecutionPointer:
 				token += '.'
 			elif (char in '-–/'):
 				token += '-'
-			elif (char in [' ', '\n', '\r', '\t']):
+			elif (char in [' ', '\n', '\r', '\t', chr(9723)]):
 				break
 		return token
 	def back(self): # move position one token backwards
@@ -350,9 +355,13 @@ def error(msg):
 		print(f"Error at #{pos} of {code}: {msg}")
 		code = storage.getContent(ep.id).strip()
 		codelines = code.split('\n')
-		lastline = codelines[len(codelines) - 1]
-		print(lastline + '\n' + ' '*(pos - len(code) + len(lastline)) + '^')
+		while (pos > len(codelines[0])):
+			pos -= len(codelines[0]) + 1
+			del codelines[0]
+		print(codelines[0] + '\n' + ' '*pos + '^')
 		stack.trace()
+		global err
+		err = True
 
 def initGlobals(rootstorage):
 	global storage
@@ -363,3 +372,5 @@ def initGlobals(rootstorage):
 	addressstack = Cellstack()
 	global ep
 	ep = ExecutionPointer('')
+	global err
+	err = False

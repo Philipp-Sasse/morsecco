@@ -1,0 +1,16 @@
+find ( string pattern → position )
+- - .-.. --.. ---- test for empty pattern
+- -- .-.. . . - -- -.-. . .- len(s) minus len(p)
+. - .- - - -.-. - - .-. --.. ----- test for p longer than s
+- .- . . - . -.-. . negative last index
+. . ( s p Lp nli i )
+- -.- -- - loop begins with s cut at i
+  - -.. -.-.  - .-. cut at i and drop other part
+  - -.- -... -.. --.. --.- compare
+  - .- drop difference
+  . - .- advance index
+  - - - -- .- --.. --. test for end of string
+  - .- - -.- - -. -.-.  - .- s cut at i
+  --. Go mark
+-- . - .- ----- - .- - .- ---- - .- - .- . .- --.- return minus 1
+-- . - .-. - .-. - .-. - .-. --.- return index
