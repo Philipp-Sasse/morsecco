@@ -107,16 +107,15 @@ def execute():
 					else:
 						error(f"File {handle} was not open.")
 				elif (subcommand == '-..'): # Delete
-					target = mC.ep.getToken()
-					if (target == ''):
-						target == mC.stack.pop().content
-					if (target == '.'): # delete error handler
-						del mC.storage.cells['.']
-					elif (mC.storage.getMode(target) == ''):
+					target = mC.stack.pop().content
+					if (mC.storage.isFile(target)):
+						filename = mC.storage.getContent(target)
 						try:
-							os.remove(target)
+							os.remove(filename)
 						except:
 							error(f"failed to remove file »{filename}«.")
+					elif (mC.storage.exists(target)):
+						del mC.storage.cells[target]
 				elif (subcommand == '--'): # Move in file
 					handle = mC.stack.pop().content
 					if (mC.storage.isFile(handle)):

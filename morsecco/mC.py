@@ -355,7 +355,7 @@ def error(msg):
 		print(f"Error at #{pos} of {code}: {msg}")
 		code = storage.getContent(ep.id).strip()
 		codelines = code.split('\n')
-		while (pos > len(codelines[0])):
+		while (len(codelines) > 1 and pos > len(codelines[0])):
 			pos -= len(codelines[0]) + 1
 			del codelines[0]
 		print(codelines[0] + '\n' + ' '*pos + '^')
