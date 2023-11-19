@@ -44,8 +44,7 @@ negative numbers have a single . at the beginning: -5 --> .-.-
 ..- ..-. ‹name› ( handle » ) Use handle as File with given name
 ..- ..-.        ( name handle » ) with empty name take name from stack
 ..- -.-.        ( handle » ) Close file and disconnect address
-..- -.. ‹name›  ( handle » ) Delete file with given name
-..- -..         ( name handle » ) with empty name take name from stack
+..- -..         ( address » ) Delete cell or file for that address
 ..- --          ( n handle » ) Move file position by n (negative = back)
 ..- --          ( ... handle » ) Move file position to Start
 ..- --          ( ..-. handle » ) Move file position to Finish
@@ -82,7 +81,7 @@ print to stdout with a trailing newline
 .-
 .- : Add cell values
 single values:   ( x y » x+y )
-multiple values: ( ‹x1 ... xn› ‹y1 ... yn ... ym› » ‹x1+y1 ... xn+yx ... ym› )
+multiple values: ( ‹x1 ... xn› ‹y1 ... yn ... ym› » ‹x1+y1 ... xn+yn ... ym› )
 
 -...
 -... : Binary And/Or/Xor/Diff
