@@ -265,17 +265,20 @@ def execute():
 				stoptoken = mC.ep.getToken()
 				topcell = mC.stack.pop()
 				newcell = topcell.copy()
-				if (newcell.content == ''):
+				token = ''
+				if newcell.len():
+					token = newcell.getToken()
+				if token == '':
 					while (mC.ep.getToken() != stoptoken):
 						pass
+					mC.stack.push(newcell) # leave the rest of the cell on the stack
+				elif code2int(token):
+					mC.stack.push(topcell) # be polite and leave it on the stack
 				else:
-					if (newcell.getInt()):
-						mC.stack.push(topcell) # be polite and leave it on the stack
-					else:
-						while (mC.ep.getToken() != stoptoken):
-							pass
-						if (newcell.len()): # the cell contains more
-							mC.stack.push(newcell) # be polite and leave the rest on the stack
+					while (mC.ep.getToken() != stoptoken):
+						pass
+					if (newcell.len()): # the cell contains more
+						mC.stack.push(newcell) # be polite and leave the rest on the stack
 
 			elif (command == '-..-'): # eXecute top cell as code
 				code = mC.stack.pop().content

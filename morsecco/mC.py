@@ -5,6 +5,7 @@ from collections import UserDict
 from alphabet import morsecodes
 
 acceptSlash = True
+endOfToken = [' ', '\n', '\r', '\t', '\d', chr(9723)]
 
 class Cell:
 	def __init__(self, content = ''):
@@ -27,12 +28,12 @@ class Cell:
 		else:
 			return re.sub('[^ .-]', '', split[0])
 	def getInt(self):
-		if (len(self.content) == 0):
-			error("Requesting number from an empty cell.")
-			return 0
 		split=self.content.split(' ',1)
 		if (len(split) == 2):
 			self.content=split[1]
+		if split[0] == '':
+			error("Requesting number from an empty cell.")
+			return 0
 		else:
 			self.content=''
 		return code2int(split[0])
