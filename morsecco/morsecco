@@ -75,6 +75,8 @@ def execute():
 					tos = mC.stack.pop()
 					if (not '-' in nextToken): # join two stack items with zero, one or more spaces
 						mC.stack.push(mC.stack.pop().append(Cell(nextToken.replace('.',' ')[1:]).append(tos)))
+					elif (abs(pos) > tos.len()):
+						error(f"cannot cut »{tos.content}« at {pos}.")
 					elif (pos > 0):
 						mC.stack.push(Cell(tos.content[pos:]))
 						mC.stack.push(Cell(tos.content[:pos]))
@@ -271,7 +273,8 @@ def execute():
 				if token == '':
 					while (mC.ep.getToken() != stoptoken):
 						pass
-					mC.stack.push(newcell) # leave the rest of the cell on the stack
+					if newcell.len():
+						mC.stack.push(newcell) # leave the rest of the cell on the stack
 				elif code2int(token):
 					mC.stack.push(topcell) # be polite and leave it on the stack
 				else:
@@ -306,7 +309,7 @@ def execute():
 				mC.ep = ExecutionPointer(command) # execute given command
 		#except:
 			#error("uncaught error.")
-			#break;
+			#break
 
 def interactive():
 	while (True):
