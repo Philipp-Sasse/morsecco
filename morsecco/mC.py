@@ -5,7 +5,7 @@ from collections import UserDict
 from alphabet import morsecodes
 
 acceptSlash = True
-endOfToken = [' ', '\n', '\r', '\t', '\d', chr(9723)]
+endOfToken = ['', ' ', '\n', '\r', '\t', '\d', chr(9723)]
 
 class Cell:
 	def __init__(self, content = ''):
@@ -29,13 +29,13 @@ class Cell:
 			return re.sub('[^ .-]', '', split[0])
 	def getInt(self):
 		split=self.content.split(' ',1)
-		if (len(split) == 2):
-			self.content=split[1]
+		if len(split) == 1:
+			self.content = ''
+		elif len(split) == 2:
+			self.content = split[1]
 		if split[0] == '':
 			error("Requesting number from an empty cell.")
 			return 0
-		else:
-			self.content=''
 		return code2int(split[0])
 	def len(self):
 		return len(self.content)
@@ -120,10 +120,11 @@ class ExecutionPointer:
 			self.position = position
 	def move(self, relative):
 		return ExecutionPointer(self.id, self.position + relative)
-	def search(self, code):
-		found = storage.cells[self.id].content[self.position:].find(code)
+	def search(self, pattern):
+		code = storage.cells[self.id].content[self.position:]
+		found = code.find(pattern)
 		if (found == -1):
-			error(f"Sequence »{code}« not found.")
+			error(f"Sequence »{pattern}« not found in »{code}«.")
 		else:
 			self.position += found
 	def toCode(self):
@@ -350,11 +351,14 @@ def code2int(code):
 
 def error(msg):
 	global ep
-	pos = ep.position - 1
+	pos = ep.position
 	code = ep.id
 	if (code == ''):
 		code = 'main'
-	if (storage.exists('.')):
+	if code == '.':
+		#print("error in error handler")
+		pass
+	elif (storage.exists('.')):
 		addressstack.push(Cell(ep.toCode())) # place return address on the address stack
 		ep = ExecutionPointer('.') # execute custom error handler
 	else:
