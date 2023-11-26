@@ -4,8 +4,24 @@
 
 import sys, re, os, rlcompleter
 from alphabet import morsecodes
-from mC import Cell, ExecutionPointer, Cellstorage, Cellstack, int2code, code2int, error, initGlobals
+from mC import Cell, ExecutionPointer, Cellstorage, Cellstack, int2code, code2int, subroutine, error, initGlobals
 import mC
+
+def goto():
+	address = mC.addressstack.pop()
+	mC.ep = address.getExecutionPointer()
+	while (mC.ep.generation > 0):
+		mC.ep.generation -= 1
+		for address in mC.addressstack.getAll():
+			if (address.size() > 0 and address.content[0] == ' '):
+				address.content = address.content[1:]
+			else:
+				error("leaving command with local address in stack.")
+		parent = mC.storage.getChild('')
+		if (parent):
+			mC.storage = parent
+		else:
+			error("returning from orphan storage.")
 
 def execute():
 	while (not mC.err):
@@ -14,9 +30,8 @@ def execute():
 			command = mC.ep.getToken()
 			#print(f"»{command}«")
 			if (command == '--.-' or command == chr(0)): # Quit or end of current code
-				if (mC.ep.id != '' and mC.addressstack.size()): # we are in a subroutine and the tos could be a return address
-					address = mC.addressstack.pop()
-					mC.ep = ExecutionPointer(position=address.getInt(), id=address.content)
+				if ((mC.ep.id != '' or mC.storage.getChild('')) and mC.addressstack.size()): # we are in a subroutine and the tos could be a return address
+					goto()
 				else:
 					break
 			elif (command == ''): # ignore an empty command
@@ -257,11 +272,7 @@ def execute():
 					mC.addressstack.push(Cell(target.toCode()))
 
 			elif (command == '--.'): # Go to position given by top of address stack
-				ep = mC.addressstack.pop().getExecutionPointer()
-				if (ep.isValid()):
-					mC.ep = ep
-				else:
-					error(f"cannot Go to position »{ep.position}« in command »{ep.id}«.")
+				goto()
 
 			elif (command == '--..'): # Zero-skip (skip commands, if tos is 0 or empty)
 				stoptoken = mC.ep.getToken()
@@ -305,8 +316,7 @@ def execute():
 				mC.storage.print()
 
 			elif (mC.storage.exists(command)):
-				mC.addressstack.push(Cell(mC.ep.toCode())) # place return address on the address stack
-				mC.ep = ExecutionPointer(command) # execute given command
+				subroutine(command)
 		#except:
 			#error("uncaught error.")
 			#break
@@ -319,6 +329,7 @@ def interactive():
 				break
 			previously = rootstorage.cells[''].content
 			mC.ep = ExecutionPointer(position = len(previously), id='')
+			mC.storage = rootstorage
 			rootstorage.cells.update({'': Cell(previously + script)})
 			execute()
 			mC.err = False
@@ -326,10 +337,15 @@ def interactive():
 			print(' Bye!')
 			break
 
-usage='Usage: morsecco [-f scriptfile] [-r cellfile] [script] [-i]\n  with any number of scriptfiles and scripts.\nOptions:\n  -f scriptfile  executes the contents of scriptfile\n  -r cellfile    read the contents of cellfile to the stack\n  -q             quite mode to suppress error messages by empty error handler\n  -i             enter interactive mode\n  -h             show this help\n  -v             show version'
-
-scriptfile=''
-script=''
+usage='Usage: morsecco [-f scriptfile] [-r cellfile] [script] [-i]\n\
+with any number of scriptfiles and scripts.\n\
+Options:\n\
+-f scriptfile  executes the contents of scriptfile\n\
+-r cellfile    read the contents of cellfile to the stack\n\
+-q             quite mode to suppress error messages by empty error handler\n\
+-i             enter interactive mode\n\
+-h             show this help\n\
+-v             show version'
 
 rootstorage = Cellstorage()
 mC.initGlobals(rootstorage)
@@ -340,7 +356,7 @@ mC.initGlobals(rootstorage)
 
 args=sys.argv[1:]
 if (len(args) == 0): # without arguments, enter interactive mode
-	print('Thank you for entering morsecco ' + chr(0x1F37E) + ' interactive mode. Type .... for Help. Leave with ctrl-D')
+	print('Thank you for entering morsecco ' + chr(0x1F37E) + ' interactive mode. Type .... for Help. Leave with --.-')
 	interactive()
 	sys.exit()
 
@@ -349,7 +365,7 @@ while (len(args)):
 		print(usage)
 		sys.exit()
 	elif (args[0] == '-v'):
-		print('morsecco programming language v0.5 -- with dot, dash and space around the world')
+		print('morsecco programming language v0.6 -- with dot, dash and space around the world')
 		sys.exit()
 	elif (args[0] == '-q'): # quite = empty error handler
 		rootstorage.cells.update({'.': Cell('')})
@@ -375,5 +391,4 @@ while (len(args)):
 	else: # if it's no option, it's a script!
 		rootstorage.cells.update({'': Cell(rootstorage.cells[''].content + args[0] + '\n')})
 	args = args[1:]
-#print(storage[''].content)
 execute()

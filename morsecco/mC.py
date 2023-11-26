@@ -69,10 +69,12 @@ class Cell:
 			result = result + self.content + other.content
 		return Cell(result.strip())
 	def getExecutionPointer(self):
+		generation = 0
+		while (len(self.content) > 0 and self.content[0] == ' '):
+			generation += 1
+			self.content = self.content[1:]
 		if (not ' ' in self.content): # Doesn't look like an address
 			error(f"illegal address »{self.content}«")
-		elif (self.content.split(' ',1)[0] == ''):
-			error("address without command position")
 		else:
 			pos = self.getInt()
 			id = self.content
@@ -80,22 +82,40 @@ class Cell:
 				error(f"addressing unexistent command {id}")
 			if (pos < 0):
 				error(f"addressing negative command position {pos}")
-			return ExecutionPointer(position=pos, id=id)
+			return ExecutionPointer(id = id, position = pos, generation = generation)
+		return ep.copy()
 
 class ExecutionPointer:
-	def __init__(self, id, position = 0):
+	def __init__(self, id, position = 0, generation = 0):
 		self.id = id
-		self.position=position
+		self.position = position
+		self.generation = generation
 	def isValid(self):
-		if (storage.exists(self.id)):
-			if (self.position >= 0 and self.position <= len(storage.getContent(self.id))):
-				return True
-		return False
+		target = self.getCell()
+		if (not target):
+			return False
+		if (self.position >= 0 and self.position <= target.len()):
+			return True
+		else:
+			return False
 	def copy(self):
-		return ExecutionPointer(self.id, self.position)
+		return ExecutionPointer(self.id, self.position, self.generation)
+	def getCell(self):
+		generation = self.generation
+		targetStorage = storage
+		while (generation > 0):
+			targetStorage = targetStorage.children['']
+			if (targetStorage):
+				generation -= 1
+			else:
+				return False
+		if (targetStorage.exists(self.id)):
+			return targetStorage.cells[self.id]
+		else:
+			return False
 	def getToken(self):
 		token=''
-		source = storage.cells[self.id].content
+		source = self.getCell().content
 		if (self.position >= len(source)):
 			return chr(0)
 		while (self.position < len(source)):
@@ -112,7 +132,7 @@ class ExecutionPointer:
 		if (self.position == 0):
 			error(f"Already at the start of the command sequence.")
 		else:
-			source = storage.cells[self.id].content
+			source = self.getCell().content
 			position = self.position
 			while (position := position - 1):
 				if (source[position - 1] in [' ', '\n', '\r', '\t']):
@@ -128,14 +148,14 @@ class ExecutionPointer:
 		else:
 			self.position += found
 	def toCode(self):
-		return int2code(self.position) + ' ' + self.id
+		return ' ' * self.generation + int2code(self.position) + ' ' + self.id
 
 class Cellstorage:
 	def __init__(self, main = '', parent = False):
 		self.cells = {'': Cell(main), '-': Cell('stdin')}
 		self.files = {'-': sys.stdin}
 		self.modes = {'-': '.'}
-		self.parent = parent
+		self.children = {'': parent}
 	def print(self):
 		for addr, cell in self.cells.items():
 			if (not addr in ['', '-']):
@@ -144,6 +164,14 @@ class Cellstorage:
 					print(addr + ' :(' + mode + ') ' + cell.content)
 				else:
 					print(addr + ' : ' + cell.content)
+	def getChild(self, id):
+		if (id in self.children.keys()):
+			return self.children[id]
+		else:
+			return False
+	def giveBirth(self, id):
+		newStorage = Cellstorage(main = self.getContent(''), parent = self)
+		self.children.update({id: newStorage})
 	def getMode(self, id):
 		if (id in self.modes.keys()):
 			return self.modes[id]
@@ -213,6 +241,7 @@ class Cellstorage:
 			elif (self.exists(mode)): # custom usage
 				global ep
 				stack.push(Cell('.--')) # Write access
+				# TODO do we need to check the custom handler for mode .-..?
 				addressstack.push(Cell(ep.toCode())) # place return address on the address stack
 				ep = ExecutionPointer(mode) # execute usage handler
 			else:
@@ -274,6 +303,7 @@ class Cellstorage:
 			elif (self.exists(mode)): # custom usage
 				stack.push(Cell(id)) # custom command needs to know the address
 				stack.push(Cell('')) # empty cell for read access
+				# TODO do we need to check the custom handler for mode .-..?
 				addressstack.push(Cell(ep.toCode())) # place return address on the address stack
 				ep = ExecutionPointer(mode) # execute usage handler
 				return stack.pop() # The command left the return value there
@@ -335,6 +365,8 @@ class Cellstack:
 	def trace(self):
 		for cell in reversed(self.stack):
 			print(cell.content)
+	def getAll(self):
+		return self.stack
 	
 def int2code(num):
 	if (num < 0):
@@ -372,6 +404,19 @@ def error(msg):
 		stack.trace()
 		global err
 		err = True
+
+def subroutine(command):
+	global ep, addressstack, storage
+	addressstack.push(Cell(ep.toCode())) # place return address on the address stack
+	if (storage.getMode(command) == '.-..'): # Use = Local
+		if (not storage.getChild(command)):
+			storage.giveBirth(command)
+		storage.getChild(command).write('', storage.cells[command])
+		storage = storage.getChild(command)
+		for address in addressstack.getAll():
+			address.content = ' ' + address.content
+		command = ''
+	ep = ExecutionPointer(command) # execute given command
 
 def initGlobals(rootstorage):
 	global storage
