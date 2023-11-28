@@ -31,6 +31,8 @@ def execute():
 			#print(f"»{command}«")
 			if mC.storage.getMode(command) == '-..-': # eXecute mode overwrites build-in commands
 				subroutine(command)
+			elif mC.storage.getMode(command) == '.-..' and not mC.storage.isFile(command):
+				subroutine(command)
 			elif (command == '--.-' or command == chr(0)): # Quit or end of current code
 				if ((mC.ep.id != '' or mC.storage.getChild('')) and mC.addressstack.size()):
 					# we are in a subroutine and the tos could be a return address
@@ -368,7 +370,7 @@ while (len(args)):
 		print(usage)
 		sys.exit()
 	elif (args[0] == '-v'):
-		print('morsecco programming language v0.6.1 -- with dot, dash and space around the world')
+		print('morsecco programming language v0.6.2 -- with dot, dash and space around the world')
 		sys.exit()
 	elif (args[0] == '-q'): # quite = empty error handler
 		rootstorage.cells.update({'.': Cell('')})

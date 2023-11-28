@@ -48,12 +48,14 @@ negative numbers have a single . at the beginning: -5 --> .-.-
 ..- --          ( n handle » ) Move file position by n (negative = back)
 ..- --          ( ... handle » ) Move file position to Start
 ..- --          ( ..-. handle » ) Move file position to Finish
+..- -..-        Use as eXecutable (overwriting command or special address)
 Switch read mode:
 ..- .      to read Everything = whole file (default)
-..- .-..   to read Linewise
-..- -      to read Token by token
-..- ..-    to read given number of Unicode chars
-..- -...   to read given number of Bytes
+..- .-..   to read Linewise from file
+..- -      to read Token by token from file
+..- ----   to read given number of CHaracters from file
+..- -...   to read given number of Bytes from file
+..- ..-    to read from Url given in Cell
 
 .-.
 .-. : Read from address or file
@@ -61,7 +63,7 @@ Normal storage cell:  ( address » cell(address) )
 file in . mode:       ( handle » ‹file contents› )
 file in .-.. mode:    ( handle » ‹next line of file› )
 file in - mode:       ( handle » ‹next token of file› )
-file in ..- mode:     ( count handle » ‹count number of Unicode chars› )
+file in ---- mode:    ( count handle » ‹count number of CHaracters› )
 file in -... mode:    ( count handle » ‹count number of Bytes› )
 stdin in given mode: handle = -
 cell in custom mode:  ( as defined by custom command )
@@ -70,9 +72,12 @@ from Marked position: ( -- » ‹token(a)› )  addr: ( a » ‹a+token› )
 
 .--
 .-- : Write a cell's content to address or file or whereever
-to address stack:   ( ‹address› .- -- )  addr: ( » ‹address› )
-to morse table:     ( ‹.-.- --.- -.-.› -- .-- -- ) will translate .-.- to
- the sequence --.- -.-. in future -.- -- commands.
+to sTdout:          ( string - » ) write string to stdout without newline
+to address stack:   ( ‹address› .- » )  addr: ( » ‹address› )
+to morse table:     ( ‹.-.- --.- -.-.› -- » ) will translate .-.- to
+                         the sequence --.- -.-. in future -.- -- commands.
+If these addresses have mode -..- set, you write command code to their address
+
 
 ---
 --- : Output cell to shell

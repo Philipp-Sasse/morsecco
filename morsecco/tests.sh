@@ -122,7 +122,7 @@ expect_eq ".- -..-" "1
 
 echo %%%%%% Test File Write and Read
 #echo "./morsecco '.  ..- --.--- . -. . .--  . ..-. ..- ..-.  . --- . ..-. .--  . ... . ..-. .--  . ..-. ..- ..-  . -.. . ..-. ...-. .-. ---  . - . ..-. .--'" "---."
-expect_eq "write" "---." $(./morsecco '.  .-..- ..- . -. . .--  . ..-. ..- ..-.  . --- . ..-. .--  . ... . ..-. .--  . ..-. ..- ..-  . -.. . ..-.  .-. ---  . - . ..-. .--')
+expect_eq "write" "---." $(./morsecco '.  .-..- ..- . -. . .--  . ..-. ..- ..-.  . --- . ..-. .--  . ... . ..-. .--  . ..-. ..- ----  . -.. . ..-.  .-. ---  . - . ..-. .--')
 expect_eq "verify" "---.-" "$(cat '.-../../ -  .--')"
 
 echo %%%%%% Test Mark Move
@@ -145,4 +145,7 @@ expect_eq "local" "-.-
 
 echo %%%%%% Use eXecute
 expect_eq "override buildin" ".-..-." "$(./morsecco '.  - - . - .-- . - .--  . --- .-- . --- ..- -..- . .-. ---')"
+
+echo %%%%%% Use Url
+expect_eq "fetch website" "<!DOCTYPE html>" "$(echo 'https://google.com' | ./morsecco '. - .-. . -. .-- . -. ..- ..- . -. .-. -.-. ---- ---')"
 

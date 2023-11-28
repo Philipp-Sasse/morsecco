@@ -1,6 +1,7 @@
 # morseccoClasses (mC) contains the classes used by morsecco, some utilities and the globals
 
 import sys, re, os
+import urllib.request
 from collections import UserDict
 from alphabet import morsecodes
 
@@ -260,6 +261,10 @@ class Cellstorage:
 				cell = Cell(pointer.getToken())
 				addressstack.push(Cell(pointer.toCode()))
 				return cell
+		elif self.getMode(id) == '..-': # Url
+			req = urllib.request.Request(self.getContent(id))
+			with urllib.request.urlopen(req) as response:
+				return Cell(response.read().decode("utf-8", "replace"))
 		elif (self.isFile(id)):
 			cell = Cell('')
 			file = self.fileHandle(id)
@@ -282,7 +287,7 @@ class Cellstorage:
 				elif (mode == '-'): # read Token
 					while (not (character := file.read(1)) in endOfToken):
 						cell.content += character
-				elif (mode == '..-'): # read Unicode chars
+				elif (mode == '----'): # read CHaracters
 					cell.content = file.read(stack.pop().getInt())
 				elif (mode == '-...'): # read Bytes
 					for i in range(stack.pop().getInt()):
