@@ -147,5 +147,5 @@ echo %%%%%% Use eXecute
 expect_eq "override buildin" ".-..-." "$(./morsecco '.  - - . - .-- . - .--  . --- .-- . --- ..- -..- . .-. ---')"
 
 echo %%%%%% Use Url
-expect_eq "fetch website" "<!DOCTYPE html>" "$(echo 'https://google.com' | ./morsecco '. - .-. . -. .-- . -. ..- ..- . -. .-. -.-. ---- ---')"
+expect_eq "fetch website" "# morsecco" "$(echo 'https://raw.githubusercontent.com/Philipp-Sasse/morsecco/main/README.md' | ./morsecco '. - .-. . -. .-- . -. ..- ..- . -. .-. -.-. -.-. ---')"
 
