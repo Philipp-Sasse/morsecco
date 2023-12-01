@@ -2,10 +2,10 @@ from setuptools import setup
 
 setup(
     name='morsecco',
-    version='0.5.0',    
+    version='0.6.3',    
     description='A minimalistic, but mighty programming language',
     url='https://github.com/Philipp-Sasse/morsecco',
-    package_data={ '': ['morsecco', 'help.txt'] },
+    package_data={ '': ['help.txt'] },
     include_package_data=True,
     author='Philipp Sasse',
     author_email='Philipp.Sasse@sonnenkinder.org',
@@ -13,6 +13,11 @@ setup(
     packages=['morsecco'],
     install_requires=[
                       ],
+    entry_points={
+        'console_scripts': [
+            'morsecco=morsecco.morsecco:main',
+        ],
+    },
 
     classifiers=[
         'Development Status :: 3 - Alpha',
