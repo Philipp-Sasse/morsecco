@@ -365,7 +365,7 @@ def main():
 	
 	args=sys.argv[1:]
 	if (len(args) == 0): # without arguments, enter interactive mode
-		print('Thank you for entering morsecco ' + chr(0x1F37E) + ' interactive mode. Type .... for Help. Leave with --.-')
+		print('Welcome to morsecco ' + chr(0x1F37E) + ' interactive mode. Type .... for Help. Leave with --.-')
 		interactive()
 		sys.exit()
 	
