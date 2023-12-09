@@ -55,13 +55,14 @@ def execute():
 				except:
 					error(f"could not open help file")
 				
-			elif (command == '.'): # Enter cell
+			elif command == '.': # Enter cell
 				token = mC.ep.getToken()
-				if (len(token)):
+				if len(token):
 					mC.stack.push(Cell(token))
-				else:	# if . is followed by double space, enter until double space
+				else:	# if . is followed by an empty token, read the following token and Enter everything before it repeats
+					stoptoken = mC.ep.getToken()
 					text = ''
-					while ((token := mC.ep.getToken()) != ''):
+					while (token := mC.ep.getToken()) != stoptoken:
 						text = text + token + ' '
 					mC.stack.push(Cell(text.strip()))
 
@@ -374,7 +375,7 @@ def main():
 			print(usage)
 			sys.exit()
 		elif (args[0] == '-v'):
-			print('morsecco programming language v0.6.2 -- with dot, dash and space around the world')
+			print('morsecco programming language v0.7.0 -- with dot, dash and space around the world')
 			sys.exit()
 		elif (args[0] == '-q'): # quite = empty error handler
 			rootstorage.cells.update({'.': Cell('')})
