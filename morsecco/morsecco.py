@@ -6,7 +6,8 @@ import sys, re, os, rlcompleter
 
 sys.path.append(os.path.dirname(__file__))
 from alphabet import morsecodes
-from mC import Cell, ExecutionPointer, Cellstorage, Cellstack, int2code, code2int, subroutine, error, initGlobals
+from mC import Cell, ExecutionPointer, Cellstorage, Cellstack
+from mC import int2code, code2int, float2code, code2float, subroutine, error, initGlobals
 import mC
 
 def goto():
@@ -75,15 +76,16 @@ def execute():
 					if (nextToken == ''):
 						pass
 					else:
-						pos = code2int(nextToken)
 						if (not '-' in nextToken):
 							mC.stack.roll(nextToken.count('.'))
-						elif (pos > 0): # copy item to the top the stack
-							mC.stack.pick(pos - 1)
-						elif (pos < 0): # negative numbers delete items; beware to start with upmost
-							mC.stack.delete(- pos - 1)
 						else:
-							error("this should never happen")
+							pos = code2int(nextToken)
+							if (pos > 0): # copy item to the top the stack
+								mC.stack.pick(pos - 1)
+							elif (pos < 0): # negative numbers delete items; beware to start with upmost
+								mC.stack.delete(- pos - 1)
+							else:
+								error("this should never happen")
 
 			elif (command == '.-..'): # Length
 				mC.stack.push(Cell(int2code(len(mC.stack.pop().content))))
@@ -94,21 +96,22 @@ def execute():
 					positions = mC.stack.pop() # take command list from stack instead
 				while (positions.len()):
 					nextToken = positions.getToken()
-					pos = code2int(nextToken)
 					tos = mC.stack.pop()
 					if (not '-' in nextToken): # join two stack items with zero, one or more spaces
 						mC.stack.push(mC.stack.pop().append(Cell(nextToken.replace('.',' ')[1:]).append(tos)))
-					elif (abs(pos) > tos.len()):
-						error(f"cannot cut »{tos.content}« at {pos}.")
-					elif (pos > 0):
-						mC.stack.push(Cell(tos.content[pos:]))
-						mC.stack.push(Cell(tos.content[:pos]))
-					elif (pos < 0):
-						pos = tos.len() + pos;
-						mC.stack.push(Cell(tos.content[:pos]))
-						mC.stack.push(Cell(tos.content[pos:]))
 					else:
-						error("this should never happen")
+						pos = code2int(nextToken)
+						if (abs(pos) > tos.len()):
+							error(f"cannot cut »{tos.content}« at {pos}.")
+						elif (pos > 0):
+							mC.stack.push(Cell(tos.content[pos:]))
+							mC.stack.push(Cell(tos.content[:pos]))
+						elif (pos < 0):
+							pos = tos.len() + pos;
+							mC.stack.push(Cell(tos.content[:pos]))
+							mC.stack.push(Cell(tos.content[pos:]))
+						else:
+							error("this should never happen")
 
 			elif (command == '..-'): # Use address as File, Stack, whatever
 				subcommand = mC.ep.getToken()
@@ -187,13 +190,16 @@ def execute():
 						else:
 							error(f"Failing to convert {code} to a unicode char.")
 				elif (subcommand == '-.'): # to Number string
-					while (tos.len()):
+					while tos.len():
 						token = tos.getToken()
-						if (token == ''):
+						if (token):
+							num = code2float(token)
+							if num%1:
+								text += str(num)
+							else:
+								text += str(int(num))
+						if tos.len():
 							text += ' '
-						else:
-							text += str(code2int(token)) + ' '
-					text = text.strip()
 				elif (subcommand == '--'): # to Morse code
 					lowercase = False
 					morselist = list(morsecodes.keys())
@@ -222,10 +228,14 @@ def execute():
 						text += int2code(ord(char)) + ' '
 					text = text.strip()
 				elif (subcommand == '.-.'): # from number
-					while (tos.len()):
+					while tos.len():
 						token = tos.getToken(clean=True)
-						text += int2code(int(token)) + ' '
-					text = text.strip()
+						try:
+							text += float2code(float(token))
+						except:
+							error(f"»{token}« is no number")
+						if tos.len():
+							text += ' '
 				elif (subcommand == '.--'): # from Morse code
 					lowercase = False
 					while (tos.len()):
@@ -375,7 +385,7 @@ def main():
 			print(usage)
 			sys.exit()
 		elif (args[0] == '-v'):
-			print('morsecco programming language v0.7.0 -- with dot, dash and space around the world')
+			print('morsecco programming language v0.7.1 -- with dot, dash and space around the world')
 			sys.exit()
 		elif (args[0] == '-q'): # quite = empty error handler
 			rootstorage.cells.update({'.': Cell('')})

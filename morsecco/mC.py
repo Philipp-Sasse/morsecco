@@ -38,6 +38,16 @@ class Cell:
 			error("Requesting number from an empty cell.")
 			return 0
 		return code2int(split[0])
+	def getFloat(self):
+		split=self.content.split(' ',1)
+		if len(split) == 1:
+			self.content = ''
+		elif len(split) == 2:
+			self.content = split[1]
+		if split[0] == '':
+			error("Requesting number from an empty cell.")
+			return 0
+		return code2float(split[0])
 	def len(self):
 		return len(self.content)
 	def append(self, other):
@@ -45,7 +55,7 @@ class Cell:
 	def add(self, other):
 		sum = ''
 		while (self.len() > 0 and other.len() > 0):
-			sum = sum + int2code(code2int(self.getToken()) + code2int(other.getToken())) + ' '
+			sum = sum + float2code(code2float(self.getToken()) + code2float(other.getToken())) + ' '
 		sum = sum + self.content + other.content
 		return Cell(sum.strip())
 	def binary(self, other, operation):
@@ -379,12 +389,57 @@ def int2code(num):
 	else:
 		return bin(num)[2:].replace('0','.').replace('1','-')
 def code2int(code):
-	if (code == '.'):
+	if code == '.':
 		return 0
-	elif(code[0] == '.'):
+	elif code[0] == '.':
+		if code[1] == '.':
+			error(f"»{code}« is no integer")
 		return -int(code[1:].replace('.','0').replace('-','1'),2)
 	else:
 		return int(code.replace('.','0').replace('-','1'),2)
+def float2code(num):
+	exponent = 0
+	signExp = '-'
+	while num % 1:
+		exponent -= 1
+		num *= 16
+	if exponent == 0 and num < 2**16:
+		return int2code(int(num))
+	while num % 16 == 0:
+		exponent += 1
+		num /= 16
+	if exponent == 0:
+		return int2code(int(num))
+	elif exponent < 0:
+		signExp = '.'
+		exponent = - exponent
+	expString = bin(exponent).replace('0b','...').replace('0','.').replace('1','-')
+	expString = expString[-(len(expString) - len(expString)%4):]
+	#print(f"{int(len(expString)/2)},{int2code(int(num))},{expString},{signExp}")
+	return '.' * int(len(expString)/2) + int2code(int(num)) + expString + signExp
+def code2float(code):
+	if code == '.':
+		return 0
+	numstring = code
+	exponentChars = 0
+	while len(numstring) >= 2 and numstring[:2] == '..':
+		exponentChars += 4
+		numstring = numstring[2:]
+	if len(numstring) < exponentChars + 1:
+		error(f"»{code}« is no valid number")
+		return 0
+	expSign = 1
+	if exponentChars:
+		if numstring[-1:] == '.':
+			expSign = -1
+		numstring = numstring[:-1]
+	else:
+		return code2int(numstring)
+	mantisse = code2int(numstring[:-exponentChars])
+	numstring = numstring[-exponentChars:]
+	exponent = expSign * code2int(numstring[numstring.index('-'):])
+	print(mantisse, exponent)
+	return mantisse * 16**exponent
 
 def error(msg):
 	global ep

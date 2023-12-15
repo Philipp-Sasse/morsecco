@@ -49,7 +49,7 @@ expect_eq "quine96" ".   . . . -. .-. -.-. .... . . -.-. ... . -. -.-. .. . .-- 
 expect_eq "quine90" ".   . . . -. .-. -.-. .... -.-. .--.. - - -.-. .. -.-. . --- --.- . -. .-- -.  . -. .-- -." "$(./morsecco.py '.   . . . -. .-. -.-. .... -.-. .--.. - - -.-. .. -.-. . --- --.- . -. .-- -.  . -. .-- -.')"
 expect_eq "quine75" ".   . . - . -.-. .... . - -.-. ... . - -.-. .. . -..- -.-. .. ---  - - -..-" "$(./morsecco.py '.   . . - . -.-. .... . - -.-. ... . - -.-. .. . -..- -.-. .. ---  - - -..-')"
 expect_eq 'Hello, world!' 'Hello, world!' "$(./morsecco.py '∙   ∙∙∙∙ –––– ∙ ∙–∙∙ ∙–∙∙ ––– ––∙∙–– –∙∙∙∙∙ ∙–– ––– ∙–∙ ∙–∙∙ –∙∙ –∙–∙––  –∙– ∙–– –∙– – –––')"
-expect_eq "reverse" "123456" "$(echo -n 654321 | ./morsecco.py '. - .-. -- - -.-. .- . - .-- - - .-.. --.. --. - . --.')"
+expect_eq "reverse" "123456" "$(echo '654321\c' | ./morsecco.py '. - .-. -- - -.-. .- . - .-- - - .-.. --.. --. - . --.')"
 expect_eq "whitespace" " " "$(./morsecco.py '∙    ∙ ∙ ∙–– –∙–∙ ∙∙ –––')"
 expect_eq "-q" " " "$(./morsecco.py -q '–∙–∙ ∙∙ –––')"
 
@@ -163,4 +163,8 @@ expect_eq "override buildin" ".-..-." "$(./morsecco.py '.   - - . - .-- . - .-- 
 
 echo %%%%%% Use Url
 expect_eq "fetch website" "# morsecco" "$(echo 'https://raw.githubusercontent.com/Philipp-Sasse/morsecco/main/README.md' | ./morsecco.py '. - .-. . -. .-- . -. ..- ..- . -. .-. -.-. -.-. ---')"
+
+echo %%%%%% Floats
+expect_eq "float Konversion" "-............... ---------------- ..-.-..- -...............- ..-......-. ..-....-. ..-..---...-..---" "$(echo 32768 65535 65536 65537 0.5 0.125 2.56E6 |./morsecco.py '. - .-. -.- .-. ---')"
+
 
