@@ -49,8 +49,7 @@ expect_eq "quine96" ".   . . . -. .-. -.-. .... . . -.-. ... . -. -.-. .. . .-- 
 expect_eq "quine90" ".   . . . -. .-. -.-. .... -.-. .--.. - - -.-. .. -.-. . --- --.- . -. .-- -.  . -. .-- -." "$(./morsecco.py '.   . . . -. .-. -.-. .... -.-. .--.. - - -.-. .. -.-. . --- --.- . -. .-- -.  . -. .-- -.')"
 expect_eq "quine75" ".   . . - . -.-. .... . - -.-. ... . - -.-. .. . -..- -.-. .. ---  - - -..-" "$(./morsecco.py '.   . . - . -.-. .... . - -.-. ... . - -.-. .. . -..- -.-. .. ---  - - -..-')"
 expect_eq 'Hello, world!' 'Hello, world!' "$(./morsecco.py '∙   ∙∙∙∙ –––– ∙ ∙–∙∙ ∙–∙∙ ––– ––∙∙–– –∙∙∙∙∙ ∙–– ––– ∙–∙ ∙–∙∙ –∙∙ –∙–∙––  –∙– ∙–– –∙– – –––')"
-expect_eq "reverse" "
-123456" "$(echo 654321 | ./morsecco.py '. - .-. -- - -.-. .- . - .-- - - .-.. --.. --. - . --.')"
+expect_eq "reverse" "123456" "$(echo -n 654321 | ./morsecco.py '. - .-. -- - -.-. .- . - .-- - - .-.. --.. --. - . --.')"
 expect_eq "whitespace" " " "$(./morsecco.py '∙    ∙ ∙ ∙–– –∙–∙ ∙∙ –––')"
 expect_eq "-q" " " "$(./morsecco.py -q '–∙–∙ ∙∙ –––')"
 
@@ -75,18 +74,6 @@ expect_eq "metamorphosis butterfly" 'I am a beautiful butterfly!' "$(./morsecco.
 #expect_eq "quine" " " "$(./morsecco.py '∙   ∙ ∙ ∙–– –∙–∙ ∙∙ –––')"
 #expect_eq "-q" " " "$(./morsecco.py -q '–∙–∙ ∙∙ –––')"
 
-#echo %%%%%% Code Golf Challenges
-## https://codegolf.stackexchange.com/questions/249523/erverse-hte-ifrst-wto-eltters-fo-aech-owrd/267008#267008
-#expect_eq "erverse" " erverse hte ifrst wto eltters fo aech owrd" "$(echo reverse the first two letters of each word | ./morsecco.py '.   . - ..- - -- - . - .-. - - .-.. --.. --. - .- -.-. - - . -.-. - - .. -.-. . - . -.-. . -.-. .. --. - .- ---')"
-#expect_eq "hsorter" " erverse hte ifrst wto eltters fo aech owrd" "$(echo reverse the first two letters of each word | ./morsecco.py '.   . - ..- - -- - . - .-. - - .-.. --.. --. - .- .  -. - .  -.-.  - . -.-. . -.-. .. --. - .- ---')"
-## https://codegolf.stackexchange.com/questions/60017/source-code-metamorphosis/266989#266989
-#source='I am a caterpillar!beautiful butterfly!.   .-. - - . - .-. -... -.. --.. --.- --.- -.-. -..-- - - --- -.-. --- - .. -.-. -.-.. - .-. -.-. . . . - . -.- .- -.-. ... .  -.- - ---  -.-. ... ---'
-#expect_eq "metamorphosis wrong source" "" "$(echo "$source" | ./morsecco.py x"$source")"
-#butterfly="$(echo "$source" | ./morsecco.py "$source")"
-#expect_eq "metamorphosis caterpillar" "I am a caterpillar!
-#.  -..-..- -..... --....- --.--.- -..... --....- -..... --...-. --..-.- --....- ---.-.- ---.-.. --.-..- --..--. ---.-.- --.--.. -..... --...-. ---.-.- ---.-.. ---.-.. --..-.- ---..-. --..--. --.--.. ----..- -....-  -.- - ---" "$butterfly"
-#expect_eq "metamorphosis butterfly" 'I am a beautiful butterfly!' "$(./morsecco.py "$butterfly")"
-#>>>>>>> main
 # https://codegolf.stackexchange.com/questions/121921/make-a-interpreter/266983#266983
 source=".   -- . -- . --.-  . . .--
 . . . - .-.
@@ -95,8 +82,7 @@ source=".   -- . -- . --.-  . . .--
 - .- --. - . . - .- . .------- .- - - --.. .-. . ------- .- - .-. - . --.
  - . -.- - . - .-- . . - . --."
 program=';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;#;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;hafh;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;f;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;#;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;###ffh#h#;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ffea;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;aa;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;#au###h;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;h;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;o'
-expect_eq "#;" "0000000    2  sp   d nul nul nul nul   { nul nul nul                    
-0000013" "$(echo "$program" | ./morsecco.py "$source" | od -a)"
+expect_eq "#;" '00000000: 3220 6400 0000 007b 0000 00              2 d....{...' "$(echo "$program" | ./morsecco.py "$source" | xxd)"
 # https://codegolf.stackexchange.com/questions/266359/restricted-meta-cat/266979#266979
 source='. . . - .-. -.- .- -.-. .... .   -.- - ---  -.-. ... ---'
 meta="$(echo "foo bar" | ./morsecco.py "$source")"
@@ -129,7 +115,7 @@ expect_eq "0–100 b" "0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 2
 expect_eq "0–100 c" "$(seq 0 100)" "$(./morsecco.py '. .--..-.- -- - - - . --..-.- .- -.- -. --- . - .- --..  --. ')"
 expect_eq "0–100 d" "$(seq 0 100)" "$(./morsecco.py '.   - - --.. -. . .- .- -. -.- -. ---  . -. .-- . --..-.. -.')"
 # https://codegolf.stackexchange.com/questions/88653/print-a-10-by-10-grid-of-asterisks/267025#267025
-expect_eq "10x10 *" "$(python3 -c 'print(("*"*10+"\n")*10)')" "$(./morsecco.py '.   . .- .- --.. .. - -. - . -. -.-. . ..  . -. .-- . -.-.-. -.- - . -.-. -. . -.-. -.- - -.-. . . -.-. -. ---')"
+expect_eq "10x10" "$(for x in x x x x x x x x x x; do echo '**********';done)" "$(./morsecco.py '.   . .- .- --.. .. - -. - . -. -.-. . ..  . -. .-- . -.-.-. -.- - . -.-. -. . -.-. -.- - -.-. . . -.-. -. ---')"
 
 
 echo %%%%%% Test stack Transforming, memory Read/Write, Concat, vector Addition
