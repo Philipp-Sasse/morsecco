@@ -17,11 +17,16 @@ class Cell:
 		if len(self.content) == 0:
 			error("Requesting token from empty cell.")
 			return ''
-		split=self.content.split(' ',1)
-		if len(split) == 2:
-			self.content=split[1]
-		else:
+		elif self.content == ' ': # just one empty token
 			self.content=''
+			return ''
+		split=self.content.split(' ',1)
+		if len(split) < 2:
+			self.content=''
+		elif split[1]:
+			self.content = split[1]
+		else:
+			self.content = ' ' # preserve trailing empty token
 		if clean:
 			return split[0]
 		elif acceptSlash:

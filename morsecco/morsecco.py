@@ -64,8 +64,10 @@ def execute():
 					stoptoken = mC.ep.getToken()
 					text = ''
 					while (token := mC.ep.getToken()) != stoptoken:
-						text = text + token + ' '
-					mC.stack.push(Cell(text.strip()))
+						if text:
+							text += ' '
+						text += token
+					mC.stack.push(Cell(text))
 
 			elif command == '-': # Transform the stack: swap, copy or delete items
 				positions = Cell(mC.ep.getToken())
@@ -351,14 +353,14 @@ def execute():
 				if newcell.len():
 					token = newcell.getToken()
 				if token == '':
-					while mC.ep.getToken() != stoptoken:
+					while not mC.ep.getToken() in [stoptoken, chr(0)]:
 						pass
 					if newcell.len():
 						mC.stack.push(newcell) # leave the rest of the cell on the stack
 				elif code2int(token):
 					mC.stack.push(topcell) # be polite and leave it on the stack
 				else:
-					while mC.ep.getToken() != stoptoken:
+					while not mC.ep.getToken() in [stoptoken, chr(0)]:
 						pass
 					if newcell.len(): # the cell contains more
 						mC.stack.push(newcell) # be polite and leave the rest on the stack
