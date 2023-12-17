@@ -166,5 +166,10 @@ expect_eq "fetch website" "# morsecco" "$(echo 'https://raw.githubusercontent.co
 
 echo %%%%%% Floats
 expect_eq "float Konversion" "-............... ---------------- ..-.-..- -...............- ..-......-. ..-....-. ..-..---...-..---" "$(echo 32768 65535 65536 65537 0.5 0.125 2.56E6 |./morsecco.py '. - .-. -.- .-. ---')"
+expect_eq "float Add" "--" "$(dc -e '20 k 10 7 / p 11 7 / p'|./morsecco.py '. - ..- - . - .-. -.- .-. . - .-. -.- .-. .- ---')"
 
+echo %%%%%% Random
+expect_eq "random float" "..-...-..--..-.--.--...-----..-...--.--.---.-.--....-...---.." "$(./morsecco.py '. .-. ..- ... . - . .-. .-- . . . .-. .-. ---')"
+expect_eq "random int" "--." "$(./morsecco.py '. .-. ..- ... . . . .-. .-- . --- . .-. .-. ---')"
+expect_eq "random range" "---" "$(./morsecco.py '. .-. ..- ... . -.- . .-. .-- .   -.- ---  . .-. .-. ---')"
 

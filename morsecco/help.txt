@@ -49,6 +49,7 @@ negative numbers have a single . at the beginning: -5 --> .-.-
 ..- --          ( ... handle » ) Move file position to Start
 ..- --          ( ..-. handle » ) Move file position to Finish
 ..- -..-        Use as eXecutable (overwriting command or special address)
+..- ...         set Special Usage of address
 Switch read mode:
 ..- .      to read Everything = whole file (default)
 ..- .-..   to read Linewise from file
@@ -67,17 +68,21 @@ file in ---- mode:    ( count handle » ‹count number of CHaracters› )
 file in -... mode:    ( count handle » ‹count number of Bytes› )
 stdin in given mode: handle = -
 cell in custom mode:  ( as defined by custom command )
+Special Usages:
 from Address stack:   ( .- » ‹address› )  addr: ( ‹address› » )
 from Marked position: ( -- » ‹token(a)› )  addr: ( a » ‹a+token› )
+Random float:         ( . .-. » ›float between 0 and 1‹ )
+Random int:           ( max .-. » ›int between 0 and max‹ )
+Random int in range:  ( ›min max‹ .-. » ›int between min and max‹ )
 
 .--
 .-- : Write a cell's content to address or file or whereever
 to sTdout:          ( string - » ) write string to stdout without newline
+Special Usages:
 to address stack:   ( ‹address› .- » )  addr: ( » ‹address› )
 to morse table:     ( ‹.-.- --.- -.-.› -- » ) will translate .-.- to
                          the sequence --.- -.-. in future -.- -- commands.
-If these addresses have mode -..- set, you write command code to their address
-
+Random seed:        ( seed .-. » )
 
 ---
 --- : Output cell to shell

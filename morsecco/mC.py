@@ -1,6 +1,6 @@
 # morseccoClasses (mC) contains the classes used by morsecco, some utilities and the globals
 
-import sys, re, os
+import sys, re, os, random
 import urllib.request
 from collections import UserDict
 from alphabet import morsecodes
@@ -14,17 +14,17 @@ class Cell:
 	def copy(self):
 		return Cell(self.content)
 	def getToken(self, clean=False):
-		if (len(self.content) == 0):
+		if len(self.content) == 0:
 			error("Requesting token from empty cell.")
 			return ''
 		split=self.content.split(' ',1)
-		if (len(split) == 2):
+		if len(split) == 2:
 			self.content=split[1]
 		else:
 			self.content=''
-		if (clean):
+		if clean:
 			return split[0]
-		elif (acceptSlash):
+		elif acceptSlash:
 			return re.sub('[^ .-]', '', split[0].replace('/','-').replace('∙','.'))
 		else:
 			return re.sub('[^ .-]', '', split[0])
@@ -54,44 +54,44 @@ class Cell:
 		return Cell(self.content + other.content)
 	def add(self, other):
 		sum = ''
-		while (self.len() > 0 and other.len() > 0):
+		while self.len() > 0 and other.len() > 0:
 			sum = sum + float2code(code2float(self.getToken()) + code2float(other.getToken())) + ' '
 		sum = sum + self.content + other.content
 		return Cell(sum.strip())
 	def binary(self, other, operation):
 		result = ''
-		if (operation == '-..' and self.content != other.content):
+		if operation == '-..' and self.content != other.content:
 			for i in range(max(len(self.content), len(other.content))):
-				if (i < min(len(self.content), len(other.content))):
-					if (self.content[i] == other.content[i]):
+				if i < min(len(self.content), len(other.content)):
+					if self.content[i] == other.content[i]:
 						result += '.'
 					else:
 						result += '-'
 				else:
 					result += '-'
-		elif (operation in ['.-', '---', '-..-']):
-			while (self.len() > 0 and other.len() > 0):
-				if (operation == '.-'): # and
+		elif operation in ['.-', '---', '-..-']:
+			while self.len() > 0 and other.len() > 0:
+				if operation == '.-': # and
 					result = result + int2code(abs(code2int(self.getToken())) & abs(code2int(other.getToken()))) + ' '
-				elif (operation == '---'): # or
+				elif operation == '---': # or
 					result = result + int2code(abs(code2int(self.getToken())) | abs(code2int(other.getToken()))) + ' '
-				elif (operation == '-..-'): # xor
+				elif operation == '-..-': # xor
 					result = result + int2code(abs(code2int(self.getToken())) ^ abs(code2int(other.getToken()))) + ' '
 			result = result + self.content + other.content
 		return Cell(result.strip())
 	def getExecutionPointer(self):
 		generation = 0
-		while (len(self.content) > 0 and self.content[0] == ' '):
+		while len(self.content) > 0 and self.content[0] == ' ':
 			generation += 1
 			self.content = self.content[1:]
-		if (not ' ' in self.content): # Doesn't look like an address
+		if not ' ' in self.content: # Doesn't look like an address
 			error(f"illegal address »{self.content}«")
 		else:
 			pos = self.getInt()
 			id = self.content
-			if (not storage.exists(id)):
+			if not storage.exists(id):
 				error(f"addressing unexistent command {id}")
-			if (pos < 0):
+			if pos < 0:
 				error(f"addressing negative command position {pos}")
 			return ExecutionPointer(id = id, position = pos, generation = generation)
 		return ep.copy()
@@ -103,9 +103,9 @@ class ExecutionPointer:
 		self.generation = generation
 	def isValid(self):
 		target = self.getCell()
-		if (not target):
+		if not target:
 			return False
-		if (self.position >= 0 and self.position <= target.len()):
+		if self.position >= 0 and self.position <= target.len():
 			return True
 		else:
 			return False
@@ -114,39 +114,39 @@ class ExecutionPointer:
 	def getCell(self):
 		generation = self.generation
 		targetStorage = storage
-		while (generation > 0):
+		while generation > 0:
 			targetStorage = targetStorage.children['']
-			if (targetStorage):
+			if targetStorage:
 				generation -= 1
 			else:
 				return False
-		if (targetStorage.exists(self.id)):
+		if targetStorage.exists(self.id):
 			return targetStorage.cells[self.id]
 		else:
 			return False
 	def getToken(self):
 		token=''
 		source = self.getCell().content
-		if (self.position >= len(source)):
+		if self.position >= len(source):
 			return chr(0)
-		while (self.position < len(source)):
+		while self.position < len(source):
 			char = source[self.position]
 			self.position = self.position + 1
-			if (char in '.·∙'):
+			if char in '.·∙':
 				token += '.'
-			elif (char in '-–/'):
+			elif char in '-–/':
 				token += '-'
-			elif (char in [' ', '\n', '\r', '\t', chr(9723)]):
+			elif char in [' ', '\n', '\r', '\t', chr(9723)]:
 				break
 		return token
 	def back(self): # move position one token backwards
-		if (self.position == 0):
+		if self.position == 0:
 			error(f"Already at the start of the command sequence.")
 		else:
 			source = self.getCell().content
 			position = self.position
-			while (position := position - 1):
-				if (source[position - 1] in [' ', '\n', '\r', '\t']):
+			while position := position - 1:
+				if source[position - 1] in [' ', '\n', '\r', '\t']:
 					break;
 			self.position = position
 	def move(self, relative):
@@ -154,7 +154,7 @@ class ExecutionPointer:
 	def search(self, pattern):
 		code = storage.cells[self.id].content[self.position:]
 		found = code.find(pattern)
-		if (found == -1):
+		if found == -1:
 			error(f"Sequence »{pattern}« not found in »{code}«.")
 		else:
 			self.position += found
@@ -165,18 +165,18 @@ class Cellstorage:
 	def __init__(self, main = '', parent = False):
 		self.cells = {'': Cell(main), '-': Cell('stdin')}
 		self.files = {'-': sys.stdin}
-		self.modes = {'-': '.'}
+		self.modes = {'-':'.', '.-':'...', '--':'...'}
 		self.children = {'': parent}
 	def print(self):
 		for addr, cell in self.cells.items():
-			if (not addr in ['', '-']):
+			if not addr in ['', '-']:
 				mode = self.getMode(addr)
-				if (mode):
+				if mode:
 					print(addr + ' :(' + mode + ') ' + cell.content)
 				else:
 					print(addr + ' : ' + cell.content)
 	def getChild(self, id):
-		if (id in self.children.keys()):
+		if id in self.children.keys():
 			return self.children[id]
 		else:
 			return False
@@ -184,7 +184,7 @@ class Cellstorage:
 		newStorage = Cellstorage(main = self.getContent(''), parent = self)
 		self.children.update({id: newStorage})
 	def getMode(self, id):
-		if (id in self.modes.keys()):
+		if id in self.modes.keys():
 			return self.modes[id]
 		else:
 			#error(f"can't get mode from unexistent cell »{id}«.")
@@ -196,47 +196,53 @@ class Cellstorage:
 	def isFile(self, id):
 		return id in self.files.keys()
 	def fileHandle(self, id):
-		if (self.isFile(id)):
+		if self.isFile(id):
 			return self.files[id]
 		else:
 			error(f"»{id}« is no file.")
 	def setFileHandle(self, id, handle):
-		if (self.isFile(id)):
+		if self.isFile(id):
 			self.files.update({id:handle})
 		else:
 			error(f"»{id}« is no file.")
 	def createFile(self, id, name):
-		if (self.isFile(id)):
+		if self.isFile(id):
 			error(f"»{id}« already open with file »{self.getContent(id)}«.")
 		else:
 			self.cells.update({id:Cell(name)})
 			self.modes.update({id:'.'})
 			self.files.update({id:''})
 	def write(self, id, cell):
-		if (id == '.-'):	# move cell to Address stack
-			addressstack.push(cell)
-		elif (id == '--'):	# change morse table
-			pair=cell.content.split(' ',1)
-			if (len(pair) < 2):
-				error(f"»{pair[0]}« is no valid update for the morse table.")
+		if self.getMode(id) == '...': # Special Usage of address
+			if id == '.-':	# move cell to Address stack
+				addressstack.push(cell)
+			elif id == '--':	# change morse table
+				pair=cell.content.split(' ',1)
+				if len(pair) < 2:
+					error(f"»{pair[0]}« is no valid update for the morse table.")
+				else:
+					morsecodes.update({pair[0]:pair[1]})
+			elif id == '.-.': # Random number
+				random.seed(cell.getFloat())
 			else:
-				morsecodes.update({pair[0]:pair[1]})
-		elif (self.isFile(id)):
-			if (id == '-'): # stdout
+				error(f"no Special Usage defined for address »{id}«")
+				return Cell('')
+		elif self.isFile(id):
+			if id == '-': # stdout
 				try:
 					sys.stdout.write(cell.content)
 				except:
 					error(f"could not Write to stdout.")
 			else:
 				file = self.fileHandle(id)
-				if (file and not hasattr(file, 'mode')):
+				if file and not hasattr(file, 'mode'):
 					error(f"File handle »id« is broken.")
 					file = ''
 				try:
-					if (file == ''):
+					if file == '':
 						file = open(self.getContent(id), 'a')
 						self.setFileHandle(id, file)
-					elif (not ('a' in file.mode)):
+					elif not ('a' in file.mode):
 						pos = file.tell()
 						file = open(self.getContent(id), 'a')
 						self.setFileHandle(id, file)
@@ -247,9 +253,9 @@ class Cellstorage:
 					error(f"failed to Write to file »{self.getContent(id)}«.")
 		else: # memory
 			mode = self.getMode(id)
-			if (mode == ''): # default -> memory
+			if mode == '': # default -> memory
 				self.cells.update({id:cell})
-			elif (self.exists(mode)): # custom usage
+			elif self.exists(mode): # custom usage
 				global ep
 				stack.push(Cell('.--')) # Write access
 				# TODO do we need to check the custom handler for mode .-..?
@@ -259,47 +265,71 @@ class Cellstorage:
 				error(f"usage »{mode}« is not defined for Write.")
 			
 	def read(self, id):
-		if (id == '.-'):	# move cell from Address stack
-			return addressstack.pop()
-		elif (id == '--'):	# read token from position Marked on address stack
-			address=addressstack.pop().content.split(' ',1)
-			if (len(address) < 2):
-				error(f"No valid addess Marked to read from.")
-				return Cell('')
+		if self.getMode(id) == '...': # Special Usage of address
+			if id == '.-':	# move cell from Address stack
+				return addressstack.pop()
+			elif id == '--': # read token from position Marked on address stack
+				address=addressstack.pop().content.split(' ',1)
+				if len(address) < 2:
+					error(f"No valid addess Marked to read from.")
+					return Cell('')
+				else:
+					pointer = ExecutionPointer(position=code2int(address[0]), id=address[1])
+					cell = Cell(pointer.getToken())
+					addressstack.push(Cell(pointer.toCode()))
+					return cell
+			elif id == '.-.': # Random number
+				tos = stack.pop()
+				range1 = tos.getInt()
+				if tos.len():
+					range2 = tos.getInt()
+					try:
+						return Cell(int2code(random.randint(range1, range2)))
+					except:
+						error(f"illegal random number range from {range1} to {range2}")
+				elif range1 == 0:
+					return Cell(float2code(random.random()))
+				elif range1 > 0:
+					return Cell(int2code(random.randint(0, range1)))
+				else:	
+					error(f"random number for negative value {range1} undefined")
+					return Cell('')
 			else:
-				pointer = ExecutionPointer(position=code2int(address[0]), id=address[1])
-				cell = Cell(pointer.getToken())
-				addressstack.push(Cell(pointer.toCode()))
-				return cell
+				error(f"no Special Usage defined for address »{id}«")
+				return Cell('')
 		elif self.getMode(id) == '..-': # Url
 			req = urllib.request.Request(self.getContent(id))
-			with urllib.request.urlopen(req) as response:
-				return Cell(response.read().decode("utf-8", "replace"))
-		elif (self.isFile(id)):
+			try:
+				with urllib.request.urlopen(req) as response:
+					return Cell(response.read().decode("utf-8", "replace"))
+			except:
+				error(f"Url »{self.getContent(id)}« could not be read.")
+				return Cell('')
+		elif self.isFile(id):
 			cell = Cell('')
 			file = self.fileHandle(id)
 			mode = self.getMode(id)
-			if (file and not hasattr(file, 'mode')):
+			if file and not hasattr(file, 'mode'):
 				error(f"File handle »id« is broken.")
 				file = ''
 			try:
-				if (file == '' or not ('r' in file.mode)):
-					if (mode == '-...'):
+				if file == '' or not ('r' in file.mode):
+					if mode == '-...':
 						file = open(self.getContent(id), 'rb')
 						self.setFileHandle(id, file)
 					else:
 						file = open(self.getContent(id), 'r')
 						self.setFileHandle(id, file)
-				if (mode == '.'): # read Everything
+				if mode == '.': # read Everything
 					cell.content = file.read()
-				elif (mode == '.-..'): # read Linewise
+				elif mode == '.-..': # read Linewise
 					cell.content = file.readline()
-				elif (mode == '-'): # read Token
-					while (not (character := file.read(1)) in endOfToken):
+				elif mode == '-': # read Token
+					while not (character := file.read(1)) in endOfToken:
 						cell.content += character
-				elif (mode == '----'): # read CHaracters
+				elif mode == '----': # read CHaracters
 					cell.content = file.read(stack.pop().getInt())
-				elif (mode == '-...'): # read Bytes
+				elif mode == '-...': # read Bytes
 					for i in range(stack.pop().getInt()):
 						cell.content += int2code(file.read(1)[0]) + ' '
 					cell.content = cell.content.strip()
@@ -310,12 +340,12 @@ class Cellstorage:
 				error(f"could not Read from file »{self.getContent(id)}« at »{id}«.")
 				return Cell('')
 			return cell
-		elif (self.exists(id)):
+		elif self.exists(id):
 			global ep
 			mode = self.getMode(id)
-			if (mode == ''): # default -> memory
+			if mode == '': # default -> memory
 				return self.cells[id]
-			elif (self.exists(mode)): # custom usage
+			elif self.exists(mode): # custom usage
 				stack.push(Cell(id)) # custom command needs to know the address
 				stack.push(Cell('')) # empty cell for read access
 				# TODO do we need to check the custom handler for mode .-..?
@@ -329,7 +359,7 @@ class Cellstorage:
 			error(f"Storage »{id}« does not exist.")
 			return Cell('')
 	def getContent(self, id):
-		if (not self.exists(id)):
+		if not self.exists(id):
 			error(f"»{id} does not exist in storage.")
 			return Cell('')
 		else:
@@ -351,26 +381,26 @@ class Cellstack:
 		self.stack.append(cell)
 	def delete(self, i): # i=0 is drop, i=1 is nip, ...
 		stack = self.stack
-		if (i < 0):
+		if i < 0:
 			error(f"Requesting to delete negative stack item {i}.")
-		elif (i >= self.size()):
+		elif i >= self.size():
 			error("Stack underrun.")
 		else:
 			del(stack[self.size() - i - 1])
 	def pick(self, i): # i=0 is dup, i=1 is over, ...
 		stack = self.stack
-		if (i < 0):
+		if i < 0:
 			error(f"Requesting negative stack item {i}.")
-		elif (i >= self.size()):
+		elif i >= self.size():
 			error("Stack underrun.")
 			stack.append(Cell(''))
 		else:
 			stack.append(stack[self.size() - i - 1].copy())
 	def roll(self, i): # i=1 is swap, i=2 is rot, ...
 		stack = self.stack
-		if (i <= 0):
+		if i <= 0:
 			error(f"Requesting to take stack item {i} to the top.")
-		elif (i >= self.size()):
+		elif i >= self.size():
 			error("Stack underrun.")
 		else:
 			n = self.size() - i - 1
@@ -384,7 +414,7 @@ class Cellstack:
 		return self.stack
 	
 def int2code(num):
-	if (num < 0):
+	if num < 0:
 		return '.' + bin(-num)[2:].replace('0','.').replace('1','-')
 	else:
 		return bin(num)[2:].replace('0','.').replace('1','-')
@@ -438,26 +468,26 @@ def code2float(code):
 	mantisse = code2int(numstring[:-exponentChars])
 	numstring = numstring[-exponentChars:]
 	exponent = expSign * code2int(numstring[numstring.index('-'):])
-	print(mantisse, exponent)
+	#print(mantisse, exponent)
 	return mantisse * 16**exponent
 
 def error(msg):
 	global ep
 	pos = ep.position
 	code = ep.id
-	if (code == ''):
+	if code == '':
 		code = 'main'
 	if code == '.':
 		#print("error in error handler")
 		pass
-	elif (storage.exists('.')):
+	elif storage.exists('.'):
 		addressstack.push(Cell(ep.toCode())) # place return address on the address stack
 		ep = ExecutionPointer('.') # execute custom error handler
 	else:
 		print(f"Error at #{pos} of {code}: {msg}")
 		code = storage.getContent(ep.id).strip()
 		codelines = code.split('\n')
-		while (len(codelines) > 1 and pos > len(codelines[0])):
+		while len(codelines) > 1 and pos > len(codelines[0]):
 			pos -= len(codelines[0]) + 1
 			del codelines[0]
 		print(codelines[0] + '\n' + ' '*pos + '^')
@@ -468,8 +498,8 @@ def error(msg):
 def subroutine(command):
 	global ep, addressstack, storage
 	addressstack.push(Cell(ep.toCode())) # place return address on the address stack
-	if (storage.getMode(command) == '.-..'): # Use = Local
-		if (not storage.getChild(command)):
+	if storage.getMode(command) == '.-..': # Use = Local
+		if not storage.getChild(command):
 			storage.giveBirth(command)
 		storage.getChild(command).write('', storage.cells[command])
 		storage = storage.getChild(command)
