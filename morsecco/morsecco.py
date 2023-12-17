@@ -184,7 +184,10 @@ def execute():
 				text = ''
 				if subcommand == '-': # to Text
 					while tos.len():
-						code = code2int(tos.getToken())
+						code = 32
+						token = tos.getToken()
+						if token:
+							code = code2int(token)
 						if code >= 0:
 							text += chr(code)
 						else:
@@ -433,7 +436,7 @@ def main():
 			print(usage)
 			sys.exit()
 		elif args[0] == '-v':
-			print('morsecco programming language v0.7.3 -- with dot, dash and space around the world')
+			print('morsecco programming language v0.7.4 -- with dot, dash and space around the world')
 			sys.exit()
 		elif args[0] == '-q': # quite = empty error handler
 			rootstorage.cells.update({'.': Cell('')})

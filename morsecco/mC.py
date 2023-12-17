@@ -428,7 +428,10 @@ def int2code(num):
 	else:
 		return bin(num)[2:].replace('0','.').replace('1','-')
 def code2int(code):
-	if code == '.':
+	if code == '':
+		error(f"trying to convert an empty token to integer")
+		return 0
+	elif code == '.':
 		return 0
 	elif code[0] == '.':
 		if code[1] == '.':
