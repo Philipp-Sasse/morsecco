@@ -2,7 +2,7 @@
 
 # morsecco is a minimalistic, but mighty programming language using morse code as source code
 
-import sys, re, os, rlcompleter
+import sys, re, os, rlcompleter, math
 
 sys.path.append(os.path.dirname(__file__))
 from alphabet import morsecodes
@@ -194,7 +194,27 @@ def execute():
 						token = tos.getToken()
 						if token:
 							num = code2float(token)
-							if num%1:
+							base = mC.base
+							if base != 10:
+								numChars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+								exp = int(math.log(num) / math.log(base))
+								maxLen = int(math.log(2) / math.log(base) * 48)
+								while (num and len(text) < maxLen) or exp >= 0:
+									#print(f"»{text}« {base} - {num}")
+									if exp == -1:
+										text += '.'
+									div, num = divmod(num, base**exp)
+									if num and (base**exp - num) / num < 1E-13:
+										div += 1
+										num = 0
+									elif num / base**exp < 1E-13:
+										num = 0
+									text += numChars[int(div)]
+									exp -= 1
+								# now remove trailing zeroes due to bad rounding
+								while '.' in text and text[-1] in '0.':
+									text = text[:-1]
+							elif num%1:
 								text += str(num)
 							else:
 								text += str(int(num))
@@ -230,10 +250,38 @@ def execute():
 				elif subcommand == '.-.': # from number
 					while tos.len():
 						token = tos.getToken(clean=True)
-						try:
-							text += float2code(float(token))
-						except:
-							error(f"»{token}« is no number")
+						base = mC.base
+						if base == 10:
+							try:
+								text += float2code(float(token))
+							except:
+								error(f"»{token}« is no number")
+						else:
+							numChars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'[:int(base + 1 - 1E-14)]
+							num0 = 0
+							num1 = 0
+							errString = f"»{token}« is no number for base {base}."
+							parts = token.split('.')
+							if len(parts) > 2:
+								error(errString)
+							else:
+								while len(parts) > 1 and len(parts[1]):
+									#print(f"»{parts[1]}« {base} - {num1}")
+									char = parts[1][-1]
+									parts[1] = parts[1][:-1]
+									if char in numChars:
+										num1 = (num1 + numChars.index(char)) / base
+									else:
+										error(errString)
+								while len(parts[0]):
+									char = parts[0][0]
+									parts[0] = parts[0][1:]
+									if char in numChars:
+										num0 = base * num0 + numChars.index(char)
+									else:
+										error(errString)
+								text += float2code(num0 + num1)
+									
 						if tos.len():
 							text += ' '
 				elif subcommand == '.--': # from Morse code
@@ -385,7 +433,7 @@ def main():
 			print(usage)
 			sys.exit()
 		elif args[0] == '-v':
-			print('morsecco programming language v0.7.2 -- with dot, dash and space around the world')
+			print('morsecco programming language v0.7.3 -- with dot, dash and space around the world')
 			sys.exit()
 		elif args[0] == '-q': # quite = empty error handler
 			rootstorage.cells.update({'.': Cell('')})

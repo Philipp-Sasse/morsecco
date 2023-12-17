@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='morsecco',
-    version='0.7.1',    
+    version='0.7.3',
     description='A minimalistic, but mighty programming language',
     url='https://github.com/Philipp-Sasse/morsecco',
     package_data={ '': ['help.txt'] },

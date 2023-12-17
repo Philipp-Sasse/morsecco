@@ -74,6 +74,7 @@ from Marked position: ( -- » ‹token(a)› )  addr: ( a » ‹a+token› )
 Random float:         ( . .-. » ›float between 0 and 1‹ )
 Random int:           ( max .-. » ›int between 0 and max‹ )
 Random int in range:  ( ›min max‹ .-. » ›int between min and max‹ )
+Base in Num Konvert:  ( -... » base )
 
 .--
 .-- : Write a cell's content to address or file or whereever
@@ -83,6 +84,7 @@ to address stack:   ( ‹address› .- » )  addr: ( » ‹address› )
 to morse table:     ( ‹.-.- --.- -.-.› -- » ) will translate .-.- to
                          the sequence --.- -.-. in future -.- -- commands.
 Random seed:        ( seed .-. » )
+Base:               ( base -... » ) for Numeric Konversion
 
 ---
 --- : Output cell to shell

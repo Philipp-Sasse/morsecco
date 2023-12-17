@@ -224,6 +224,13 @@ class Cellstorage:
 					morsecodes.update({pair[0]:pair[1]})
 			elif id == '.-.': # Random number
 				random.seed(cell.getFloat())
+			elif id == '-...': # Base for Numeric Konversion
+				newBase = cell.getFloat()
+				if newBase > 0 and newBase < 36:
+					global base
+					base = newBase
+				else:
+					error(f"{newBase} is no valid Base.")
 			else:
 				error(f"no Special Usage defined for address »{id}«")
 				return Cell('')
@@ -294,6 +301,8 @@ class Cellstorage:
 				else:	
 					error(f"random number for negative value {range1} undefined")
 					return Cell('')
+			elif id == '-...': # Base for Numeric Konversion
+				return Cell(float2code(base))
 			else:
 				error(f"no Special Usage defined for address »{id}«")
 				return Cell('')
@@ -517,5 +526,7 @@ def initGlobals(rootstorage):
 	addressstack = Cellstack()
 	global ep
 	ep = ExecutionPointer('')
+	global base
+	base = 10
 	global err
 	err = False
