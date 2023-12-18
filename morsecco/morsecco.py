@@ -313,6 +313,12 @@ def execute():
 						else:
 							error(f"No idea how to convert token {token} ({code2int(token)}) to unicode.")
 					text = text[:len(text)-1]
+				elif subcommand == '-..': # to date
+					text = tos.toDate
+				elif subcommand == '.-..': # from date
+					text = tos.fromDate
+				else:
+					error(f"unknown conversion »{subcommand}«.")
 				mC.stack.push(Cell(text))
 
 			elif command == '.-': # Add
@@ -467,4 +473,4 @@ def main():
 	execute()
 
 if __name__ == "__main__":
-    main()
+	main()

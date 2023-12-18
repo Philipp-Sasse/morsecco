@@ -1,6 +1,6 @@
 # morseccoClasses (mC) contains the classes used by morsecco, some utilities and the globals
 
-import sys, re, os, random
+import sys, re, os, random, time
 import urllib.request
 from collections import UserDict
 from alphabet import morsecodes
@@ -236,8 +236,11 @@ class Cellstorage:
 					base = newBase
 				else:
 					error(f"{newBase} is no valid Base.")
+			elif id == '-..': # Date
+				global dateFormat
+				dateFormat = cell.to
 			else:
-				error(f"no Special Usage defined for address »{id}«")
+				error(f"no Special Usage defined for Writing address »{id}«")
 				return Cell('')
 		elif self.isFile(id):
 			if id == '-': # stdout
@@ -306,6 +309,8 @@ class Cellstorage:
 				else:	
 					error(f"random number for negative value {range1} undefined")
 					return Cell('')
+			elif id == '-..': # Date
+				return Cell(float2code(time.time()))
 			elif id == '-...': # Base for Numeric Konversion
 				return Cell(float2code(base))
 			else:
