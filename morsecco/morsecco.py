@@ -6,9 +6,10 @@ import sys, re, os, rlcompleter, math
 
 sys.path.append(os.path.dirname(__file__))
 from alphabet import morsecodes
-from mC import Cell, ExecutionPointer, Cellstorage, Cellstack
+from mC import Cell, ExecutionPointer, Cellstorage, Cellstack, Time
 from mC import int2code, code2int, float2code, code2float, subroutine, error, initGlobals
 import mC
+import version
 
 def goto():
 	address = mC.addressstack.pop()
@@ -313,10 +314,10 @@ def execute():
 						else:
 							error(f"No idea how to convert token {token} ({code2int(token)}) to unicode.")
 					text = text[:len(text)-1]
-				elif subcommand == '-..': # to date
-					text = tos.toDate
+				elif subcommand == '-..': # to Datetime
+					text = tos.toTime().toString()
 				elif subcommand == '.-..': # from date
-					text = tos.fromDate
+					text = Time(timeText = tos.content).toCode()
 				else:
 					error(f"unknown conversion »{subcommand}«.")
 				mC.stack.push(Cell(text))
@@ -444,7 +445,8 @@ def main():
 			print(usage)
 			sys.exit()
 		elif args[0] == '-v':
-			print('morsecco programming language v0.7.4 -- with dot, dash and space around the world')
+			version.getVersion()
+			print('morsecco programming language v' + version.version + ' -- with dot, dash and space around the world')
 			sys.exit()
 		elif args[0] == '-q': # quite = empty error handler
 			rootstorage.cells.update({'.': Cell('')})

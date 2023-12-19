@@ -75,6 +75,7 @@ Random float:         ( . .-. » ›float between 0 and 1‹ )
 Random int:           ( max .-. » ›int between 0 and max‹ )
 Random int in range:  ( ›min max‹ .-. » ›int between min and max‹ )
 Base in Num Konvert:  ( -... » base )
+current Date/time:    ( -.. » timestamp )
 
 .--
 .-- : Write a cell's content to address or file or whereever
@@ -85,6 +86,10 @@ to morse table:     ( ‹.-.- --.- -.-.› -- » ) will translate .-.- to
                          the sequence --.- -.-. in future -.- -- commands.
 Random seed:        ( seed .-. » )
 Base:               ( base -... » ) for Numeric Konversion
+Date/time format:   ( ›format‹ -.. » ) with ›format‹ for Date Konversion:
+                                      -.-- = Year,  -- = Month,   -.. = Day
+                                      .... = Hour,  .. = mInute,  ... = Second
+                                      -.-. = Calendar week,       .-- = Weekday
 
 ---
 --- : Output cell to shell
@@ -136,14 +141,16 @@ Example: --.. --. ‹executed only for non-zero› --. ‹executed if zero›
 A non-empty, non-zero token is left on the stack.
 
 -.-
--.- : Konvert top of stack to/from Text/Num/Morse
+-.- : Konvert top of stack to/from Text/Num/Morse/Date
 A leading dot Konverts in the other direction. Examples with hex 41:
--.- -   Konvert to Text:         -.....- » A
--.- .-  Konvert from Text:       A » -.....-
--.- -.  Konvert to Number:       -.....- » 65
--.- .-. Konvert from Number:     65 » -.....-
--.- --  Konvert to Morse code:   -.....- » .-
--.- .-- Konvert from Morse code: .- » -.....-
+-.- -    Konvert to Text:         -.....- » A
+-.- .-   Konvert from Text:       A » -.....-
+-.- -.   Konvert to Number:       -.....- » 65
+-.- .-.  Konvert from Number:     65 » -.....-
+-.- --   Konvert to Morse code:   -.....- » .-
+-.- .--  Konvert from Morse code: .- » -.....-
+-.- -..  Konvert to Date/time     \ depend on Date/time format set in
+-.- .-.. Konvert from Date/time   / address -.. (when Special Usage is set)
 
 --.-
 --.- : Quit program or subroutine

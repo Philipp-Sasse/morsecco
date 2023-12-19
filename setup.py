@@ -1,8 +1,11 @@
 from setuptools import setup
+import morsecco.version
+
+morsecco.version.getVersion()
 
 setup(
     name='morsecco',
-    version='0.7.4',
+    version=morsecco.version.version,
     description='A minimalistic, but mighty programming language',
     url='https://github.com/Philipp-Sasse/morsecco',
     package_data={ '': ['help.txt'] },

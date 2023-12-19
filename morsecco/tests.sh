@@ -179,3 +179,8 @@ expect_eq "from hex float" "985605.0625" "$(echo 16 F0A05.1|./morsecco.py '. - .
 expect_eq "to float base" "233.1" "$(echo 57.222222222223 4.5|./morsecco.py '. - ..- - . - .-. -.- .-. . - .-. -.- .-. . -... - - ..- ... .-- -.- -. ---')"
 expect_eq "from float base" "---..-" "$(echo 4.5 233|./morsecco.py '. - ..- - . - .-. -.- .-. . -... - - ..- ... .-- . - .-. -.- .-. ---')"
 
+echo %%%%%% Date/time
+expect_eq "timestamp" "OK" "$(if [[ $(./morsecco.py '. -.. ..- ... . -.. .-. -.- -. ---') > $(date +"%s") && $(./morsecco.py '. -.. ..- ... . -.. .-. . .-. .- -.- -. ---') < $(date +"%s") ]]; then echo OK; fi)"
+expect_eq "format time" "2030 1 17 1 1 52" "$(./morsecco.py '. ---....----....----....----.... -.- -.. -.- -. ---')"
+expect_eq "set format year" "$(date +%Y)" "$(./morsecco.py '. -.. ..- ... . -.. .-. . -.-- . -.. .--  -.- -.. -.- -. ---')"
+

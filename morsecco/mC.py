@@ -1,12 +1,15 @@
 # morseccoClasses (mC) contains the classes used by morsecco, some utilities and the globals
 
-import sys, re, os, random, time
+import sys, re, os, random, time, datetime
 import urllib.request
 from collections import UserDict
 from alphabet import morsecodes
 
 acceptSlash = True
 endOfToken = ['', ' ', '\n', '\r', '\t', '\d', chr(9723)]
+dots = '.·∙'
+strokes = '-–/'
+timeFormat = '-.-- -- -.. .... .. ...'
 
 class Cell:
 	def __init__(self, content = ''):
@@ -100,6 +103,8 @@ class Cell:
 				error(f"addressing negative command position {pos}")
 			return ExecutionPointer(id = id, position = pos, generation = generation)
 		return ep.copy()
+	def toTime(self):
+		return Time(self.content)
 
 class ExecutionPointer:
 	def __init__(self, id, position = 0, generation = 0):
@@ -137,11 +142,11 @@ class ExecutionPointer:
 		while self.position < len(source):
 			char = source[self.position]
 			self.position = self.position + 1
-			if char in '.·∙':
+			if char in dots: # '.·∙':
 				token += '.'
-			elif char in '-–/':
+			elif char in strokes: # '-–/':
 				token += '-'
-			elif char in [' ', '\n', '\r', '\t', chr(9723)]:
+			elif char in endOfToken: #[' ', '\n', '\r', '\t', chr(9723)]:
 				break
 		return token
 	def back(self): # move position one token backwards
@@ -236,9 +241,9 @@ class Cellstorage:
 					base = newBase
 				else:
 					error(f"{newBase} is no valid Base.")
-			elif id == '-..': # Date
-				global dateFormat
-				dateFormat = cell.to
+			elif id == '-..': # set Date format
+				global timeFormat
+				timeFormat = cell.content
 			else:
 				error(f"no Special Usage defined for Writing address »{id}«")
 				return Cell('')
@@ -309,7 +314,7 @@ class Cellstorage:
 				else:	
 					error(f"random number for negative value {range1} undefined")
 					return Cell('')
-			elif id == '-..': # Date
+			elif id == '-..': # current Date/time
 				return Cell(float2code(time.time()))
 			elif id == '-...': # Base for Numeric Konversion
 				return Cell(float2code(base))
@@ -431,7 +436,81 @@ class Cellstack:
 			print(cell.content)
 	def getAll(self):
 		return self.stack
-	
+
+class Time:
+	def __init__(self, code = '', timeText = ''):
+		self.code = code
+		if timeText: # parse date from string
+			format = Cell(timeFormat)
+			time = Cell(timeText)
+			year = month = day = 1
+			hour = minute = second = 0
+			while format.len():
+				token = format.getToken()
+				value = ''
+				if time.len():
+					value = time.getToken()
+				else:
+					error(f"»{timeText}« too short to be passed as Date by »{timeFormat}«.")
+				if token == '-.--':
+					year = code2int(value)
+				elif token == '--':
+					month = code2int(value)
+				elif token == '-..':
+					day = code2int(value)
+				elif token == '....':
+					hour = code2int(value)
+				elif token == '..':
+					minute = code2int(value)
+				elif token == '...':
+					second = code2int(value)
+			try:
+				self.time = datetime.datetime(year, month, day, hour, minute, second)
+				self.code = float2code(self.time.timestamp())
+			except:
+				error(f"illegal date {year}-{month}-{day} {hour}:{minute}:{second}.")
+				self.time = datetime.datetime.fromtimestamp(0)
+		else:
+			try:
+				self.time = datetime.datetime.fromtimestamp(code2float(self.code))
+			except:
+				error(f"»{self.code}« is no valid time.")
+				self.time = datetime.datetime.fromtimestamp(0)
+				self.code = float2code(self.time)
+	def toCode(self):
+		return self.code
+	def getElement(self, token):
+		if token == '-.--':
+			return int2code(self.time.year)
+		elif token == '--':
+			return int2code(self.time.month)
+		elif token == '-..':
+			return int2code(self.time.day)
+		elif token == '....':
+			return int2code(self.time.hour)
+		elif token == '..':
+			return int2code(self.time.minute)
+		elif token == '...':
+			return int2code(self.time.second)
+		elif token == '-.-.': # Calendar week
+			return int2code(self.time.isocalendar()[1])
+		elif token == '.--': # Week day
+			return int2code(self.time.isocalendar()[2])
+	def toString(self):
+		text = ''
+		mode = ''
+		format = Cell(timeFormat)
+		while format.len():
+			token = format.getToken()
+			if mode == 'T': # Text mode expects morse text and inserts escaped elements
+				pass
+			else:
+				element = self.getElement(token)
+				if element:
+					if text:
+						text += ' '
+					text += element
+		return text
 def int2code(num):
 	if num < 0:
 		return '.' + bin(-num)[2:].replace('0','.').replace('1','-')
@@ -470,6 +549,8 @@ def float2code(num):
 	#print(f"{int(len(expString)/2)},{int2code(int(num))},{expString},{signExp}")
 	return '.' * int(len(expString)/2) + int2code(int(num)) + expString + signExp
 def code2float(code):
+	if len(re.sub('[\\'+strokes+dots+']', '', code)):
+		error(f"«{code}« is no number")
 	if code == '.':
 		return 0
 	numstring = code
