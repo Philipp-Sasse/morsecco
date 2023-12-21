@@ -184,3 +184,5 @@ expect_eq "timestamp" "OK" "$(if [[ $(./morsecco.py '. -.. ..- ... . -.. .-. -.-
 expect_eq "format time" "2030 1 17 1 1 52" "$(./morsecco.py '. ---....----....----....----.... -.- -.. -.- -. ---')"
 expect_eq "set format year" "$(date +%Y)" "$(./morsecco.py '. -.. ..- ... . -.. .-. . -.-- . -.. .--  -.- -.. -.- -. ---')"
 
+expect_eq "stack Length" "- -." "$(./morsecco.py '-- -  . .  . .  . .-.. ..- ...  . .-.. .-.  -.-. ..  ---')"
+

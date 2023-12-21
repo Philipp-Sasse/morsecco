@@ -226,7 +226,7 @@ class Cellstorage:
 		if self.getMode(id) == '...': # Special Usage of address
 			if id == '.-':	# move cell to Address stack
 				addressstack.push(cell)
-			elif id == '--':	# change morse table
+			elif id == '--': # change morse table
 				pair=cell.content.split(' ',1)
 				if len(pair) < 2:
 					error(f"»{pair[0]}« is no valid update for the morse table.")
@@ -288,6 +288,9 @@ class Cellstorage:
 		if self.getMode(id) == '...': # Special Usage of address
 			if id == '.-':	# move cell from Address stack
 				return addressstack.pop()
+			elif id == '.-..': # Length of stacks
+				stack.push(Cell(int2code(addressstack.size())))
+				return Cell(int2code(stack.size() - 1))
 			elif id == '--': # read token from position Marked on address stack
 				address=addressstack.pop().content.split(' ',1)
 				if len(address) < 2:

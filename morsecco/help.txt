@@ -76,6 +76,7 @@ Random int:           ( max .-. » ›int between 0 and max‹ )
 Random int in range:  ( ›min max‹ .-. » ›int between min and max‹ )
 Base in Num Konvert:  ( -... » base )
 current Date/time:    ( -.. » timestamp )
+Length of stacks:     ( .-.. » ‹addr stack length› ‹stack length› )
 
 .--
 .-- : Write a cell's content to address or file or whereever
